@@ -48,6 +48,7 @@ router.post("/posts", upload.array("photos"), async (req, res) => {
 });
 
 router.get("/assets/:filename", (req, res) => {
+    
   const { filename } = req.params;
   gfs.find({ filename }).toArray((error, result) => {
     if (error) return res.status(500).send(error.message);
