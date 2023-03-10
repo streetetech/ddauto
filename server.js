@@ -24,8 +24,13 @@ const DB = async () => {
 };
 DB()
 
-app.use(cors());
-app.use(mongoSanitize());
+app.use(cors(
+  {
+  origin: "*",
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+  }
+));app.use(mongoSanitize());
 app.use(morgan("dev"));
 app.use(xss());
 app.use(hpp());
