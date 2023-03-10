@@ -25,6 +25,7 @@ const createSendToken = (payload, res) => {
 router.post("/register", async (req, res) => {
   try {
     const {
+      name,
       username,
       email,
     } = req.body;
@@ -32,10 +33,14 @@ router.post("/register", async (req, res) => {
     const emailExists = await User.findOne({ email: email });
     if (emailExists) return res.status(400).send("Email already exists");
 
+    const usernameExists = await User.findOne({ username: username });
+    if (usernameExists) return res.status(400).send("Username already exists");
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const user = new User({
+      name,
       username,
       email,
       password: hashedPassword,
@@ -70,7 +75,7 @@ router.post("/login", async (req, res) => {
     if (!validPassword)
       return res
         .status(400)
-        .json({ message: "Incorrect name or password" });
+        .json({ message: "Incorrect username or password" });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWTPRIVATEKEY);
     res.cookie("auth-token", token);
@@ -79,8 +84,10 @@ router.post("/login", async (req, res) => {
     const { name } = user
 
     res.send({
-      username: name, 
+      username: user.username, 
+      name: name,
       id: user._id,
+      email: user.email,
     })
     
   } catch (error) {
@@ -128,6 +135,38 @@ router.post("/loggout", (req, res) => {
   res.sendStatus(200);
 });
 
+router.post("/changepassword", async (req, res) => {
+  try {
+    const { username, password, newPassword } = req.body;
+    if (!username || !password || !newPassword)
+      return res.status(400).send("Please enter a username and password");
+    const user = await User.findOne({ username }).select("+password");
+    const name = await User.findOne({ username }).select("name");
+    console.log(name)
+    if (!user) return res.status(400).send("User does not exist");
+    // checking the password given
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword)
+      return res
+        .status(400)
+        .json({ message: "Incorrect username or password" });
+        if (password === newPassword) {
+          return res.status(400).send("New password cannot be the same as the old password");
+        }else{
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        user.password = hashedPassword;
+        }
+        res.clearCookie("jwt");
+
+        await user.save();
+        res.send("Password has been changed")
+  } catch (error) {
+    if (error.isJoi === true) error.status = 422;
+    console.log(error);
+  }
+});
+
 router.post("/forgotpassword", async (req, res) => {
   try {
     const { username, newPassword } = req.body;
@@ -149,5 +188,5 @@ router.post("/forgotpassword", async (req, res) => {
     console.log(error);
   }
 });
-
-module.exports = router
+  
+module.exports = { router, isUserLoggedIn };
