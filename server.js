@@ -24,23 +24,17 @@ const DB = async () => {
 };
 DB()
 
-app.use(cors(
-  {
-  origin: "*",
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
-  }
-));
-app.use("/api/user", authRoutes);
 app.use(mongoSanitize());
 app.use(morgan("dev"));
 app.use(xss());
 app.use(hpp());
 app.use(express.json({ limit: "10kb" }));
+app.use("/api/user", authRoutes);
 app.use(bodyParser.json());
 app.use(methodOverride("_method"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/api/post", posts);
+app.use("/api/posts", posts);
+app.use("/api/post/assets/:filename", posts);
 
 const port = process.env.PORT || 8000;
 app.listen(port, console.log(`listening on port ${port}`));
