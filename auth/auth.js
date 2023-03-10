@@ -25,7 +25,7 @@ const createSendToken = (payload, res) => {
 router.post("/register", async (req, res) => {
   try {
     const {
-      name,
+      username,
       email,
     } = req.body;
 
@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const user = new User({
-      name,
+      username,
       email,
       password: hashedPassword,
     });
