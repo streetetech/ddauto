@@ -26,7 +26,8 @@ app.use(cors(
   {
   //fix preflight error
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+  // allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+  'Access-Control-Allow-Origin' :'https://ddautoja-backend-production.up.railway.app'
   }
 ));
 app.use(mongoSanitize());
