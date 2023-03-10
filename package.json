@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "linter": "eslint ./",
     "start": "nodemon server",
-    "dev": "nodemon server"
+    "--omit=dev": "nodemon server"
   },
   "keywords": [],
   "author": "",
