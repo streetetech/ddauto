@@ -60,17 +60,17 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password)
+    const { name, password } = req.body;
+    if (!name || !password)
       return res.status(400).send("Please enter a username and password");
-    const user = await User.findOne({ username }).select("+password");
+    const user = await User.findOne({ name }).select("+password");
     if (!user) return res.status(400).send("User does not exist");
     
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword)
       return res
         .status(400)
-        .json({ message: "Incorrect username or password" });
+        .json({ message: "Incorrect name or password" });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWTPRIVATEKEY);
     res.cookie("auth-token", token);
@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
     const { name } = user
 
     res.send({
-      username: name, 
+      name: name, 
       id: user._id,
     })
     
