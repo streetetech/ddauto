@@ -76,10 +76,10 @@ router.post("/login", async (req, res) => {
     res.cookie("auth-token", token);
     
     createSendToken({ _id: user._id }, res);    
-    const { name } = user
+    const { myName } = user
 
     res.send({
-      name: name, 
+      name: myName, 
       id: user._id,
     })
     
