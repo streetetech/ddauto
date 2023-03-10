@@ -23,7 +23,8 @@ const storage = new GridFsStorage({
         metadata: {
             specifications: req.body,
             make: req.body,
-            model: req.body
+            model: req.body,
+            year: req.body
         }
       }
     };
