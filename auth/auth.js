@@ -25,7 +25,7 @@ const createSendToken = (payload, res) => {
 router.post("/register", async (req, res) => {
   try {
     const {
-      name,
+      username,
       email,
     } = req.body;
 
@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const user = new User({
-      name,
+      username,
       email,
       password: hashedPassword,
     });
@@ -60,10 +60,10 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { name, password } = req.body;
-    if (!name || !password)
+    const { username, password } = req.body;
+    if (!username || !password)
       return res.status(400).send("Please enter a username and password");
-    const user = await User.findOne({ name }).select("+password");
+    const user = await User.findOne({ username }).select("+password");
     if (!user) return res.status(400).send("User does not exist");
     
     const validPassword = await bcrypt.compare(password, user.password);
@@ -76,10 +76,10 @@ router.post("/login", async (req, res) => {
     res.cookie("auth-token", token);
     
     createSendToken({ _id: user._id }, res);    
-    const { myName } = user
+    const { name } = user
 
     res.send({
-      name: myName, 
+      username: name, 
       id: user._id,
     })
     
