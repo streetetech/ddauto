@@ -70,7 +70,7 @@ router.post("/login", async (req, res) => {
     if (!validPassword)
       return res
         .status(400)
-        .json({ message: "Incorrect username or password" });
+        .json({ message: "Incorrect name or password" });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWTPRIVATEKEY);
     res.cookie("auth-token", token);
