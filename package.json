@@ -4,10 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    //"linter": "eslint ./",
-  //  "start": "nodemon server",
-   // "--omit=dev": "nodemon server"
+   "start": "nodemon server",
+   "dev": "nodemon server"
   },
   "keywords": [],
   "author": "",
