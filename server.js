@@ -25,7 +25,6 @@ DB()
 app.use(cors(
   {
   //fix preflight error
-  origin: "*",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
   }
