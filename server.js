@@ -28,7 +28,7 @@ app.use(cors(
     orgin:'https://ddautoja-backend-production.up.railway.app',
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
-'Access-Control-Allow-Origin' : localhost:3000
+'Access-Control-Allow-Origin' : 'localhost:3000'
   }
 ));
 app.use(mongoSanitize());
