@@ -22,15 +22,15 @@ const DB = async () => {
   }
 };
 DB()
-app.use(cors(
-  {
-  //fix preflight error
-    orgin:'https://ddautoja-backend-production.up.railway.app',
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
-//   'Access-Control-Allow-Origin' :'https://ddautoja-backend-production.up.railway.app'
-  }
-));
+// app.use(cors(
+//   {
+//   //fix preflight error
+//     orgin:'https://ddautoja-backend-production.up.railway.app',
+//   credentials: true,
+//   allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+// //   'Access-Control-Allow-Origin' :'https://ddautoja-backend-production.up.railway.app'
+//   }
+// ));
 app.use(mongoSanitize());
 app.use(morgan("dev"));
 app.use(xss());
