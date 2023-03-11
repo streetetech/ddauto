@@ -38,7 +38,7 @@ app.use(hpp());
 app.use(express.json({ limit: "10kb" }));
 app.use("/api/user", authRoutes.router);
 app.use(bodyParser.json());
-app.use(methodOverride("_method"));
+app.use(methodOverride("_method")); 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/posts", posts);
 app.use("/api/post/assets/:filename", posts);
