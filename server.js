@@ -10,6 +10,7 @@ const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const authRoutes = require('./auth/auth')
 const posts = require('./posts/posts')
+const cors = require("cors")
 
 const DB = async () => {
   try {
@@ -21,7 +22,14 @@ const DB = async () => {
   }
 };
 DB()
-
+app.use(cors(
+  {
+  //fix preflight error
+  origin: "*",
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+  }
+));
 app.use(mongoSanitize());
 app.use(morgan("dev"));
 app.use(xss());
