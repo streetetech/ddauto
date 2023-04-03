@@ -40,7 +40,7 @@ app.use("/api/user", authRoutes.router);
 app.use(bodyParser.json());
 app.use(methodOverride("_method")); 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/api/posts", posts);
+app.use("/api/post", posts);
 app.use("/api/post/assets/:filename", posts);
 
 const port = process.env.PORT || 8000;

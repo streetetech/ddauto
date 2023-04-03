@@ -3,7 +3,11 @@ const multer = require("multer");
 const path = require("path");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const { default: mongoose } = require("mongoose");
+// const sharp = require("sharp");
 require("dotenv").config();
+const cacheService = require("express-api-cache");
+const cache = cacheService.cache;
+const User = require("../model/user.model");
 
 let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
   bucketName: "uploads",
@@ -21,64 +25,52 @@ const storage = new GridFsStorage({
         filename: `${id}-${filename}${path.extname(file.originalname)}`,
         bucketName: "uploads",
         metadata: {
-            specifications: req.body,
-            make: req.body,
-            model: req.body,
-            year: req.body
-        }
-      }
+          likes: [],
+          comments: [],
+          likedBy: [],
+        },
+      };
     };
     return fn(req);
   },
 });
 
 //Images
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const maxFileSize = 5 * 1_000_000;
-    if (file.size > maxFileSize) {
-      return cb("File is too big");
-    }
-    cb(null, true);
-  },
+const upload = multer({storage});
+
+router.post("/posts", upload.single("post"), async (req, res) => {
+  // const user = await User.findById(req.user._id);
+  // user.posts = req.file.filename
+  // await user.save();
+  res.send(req.file)
 });
 
-router.post("/posts", upload.array("photos"), async (req, res) => {
-  res.send(req.files);
+router.post("/upload", upload.array("post"),(req, res) => {
+res.send(req.files)
+  // const files = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
+
+  // // Create an array to store the uploaded files' IDs
+  // const uploadedIds = [];
+
+  // files.forEach((file) => {
+  //   // Create a write stream to the GridFS collection
+  //   const writeStream = gfs.createWriteStream({
+  //     filename: file.filename,
+  //   });
+
+  //   // Pipe the file to the write stream
+  //   file.pipe(writeStream);
+
+  //   // Handle write stream events
+  //   writeStream.on("close", (uploadedFile) => {
+  //     uploadedIds.push(uploadedFile._id);
+  //     if (uploadedIds.length === files.length) {
+  //       res.status(200).json({ fileIds: uploadedIds });
+  //     }
+  //   });
+  //   writeStream.on("error", (err) => {
+  //     res.status(500).json({ error: err.message });
+  //   });
+  // });
 });
-
-router.get("/assets/:filename", (req, res) => {
-
-  const { filename } = req.params;
-  gfs.find({ filename }).toArray((error, result) => {
-    if (error) return res.status(500).send(error.message);
-    // Does file exist?
-    const [file] = result;
-    if (!file) {
-      return res.status(404).send("That image was not found");
-    }
-    const stream = gfs.openDownloadStreamByName(filename);
-    stream.pipe(res);
-  });
-});
-
-router.get("/alls", (req, res) => {
-  gfs.find().toArray((error, result) => {
-    if (error) return res.status(500).send(error.message);
-    // Does file exist?
-    if (!result) {
-      return res.status(404).send("That image was not found");
-    }
-    // Send file through stream
-    const urls = result.map((file) => {
-      return {
-        url: `https://flybybackend-production.up.railway.app/api/post/assets/${file.filename}`,
-      }
-    })
-    res.send({urls});
-  });
-});
-
-
 module.exports = router;
