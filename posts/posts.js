@@ -3,16 +3,16 @@ const multer = require("multer");
 const path = require("path");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const { default: mongoose } = require("mongoose");
-// const sharp = require("sharp");
 require("dotenv").config();
-const cacheService = require("express-api-cache");
-const cache = cacheService.cache;
-const User = require("../model/user.model");
+const { v4: uuidv4 } = require('uuid'); 
 
 let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
   bucketName: "uploads",
   chunkSizeBytes: 1024,
 });
+
+
+let groupId = null; // Declare a variable to store the groupId
 
 const storage = new GridFsStorage({
   db: mongoose.connection,
@@ -20,14 +20,16 @@ const storage = new GridFsStorage({
     const fn = async (req) => {
       const { filename } = await GridFsStorage.generateBytes();
       const id = new mongoose.Types.ObjectId();
-      return {
+      if(!groupId){
+        groupId = uuidv4();
+      }
+        return {
         id,
         filename: `${id}-${filename}${path.extname(file.originalname)}`,
         bucketName: "uploads",
         metadata: {
-          likes: [],
-          comments: [],
-          likedBy: [],
+          groupId,
+          brand: req.body.brand
         },
       };
     };
@@ -35,42 +37,61 @@ const storage = new GridFsStorage({
   },
 });
 
+groupId = null;
+
+
 //Images
 const upload = multer({storage});
 
-router.post("/posts", upload.single("post"), async (req, res) => {
-  // const user = await User.findById(req.user._id);
-  // user.posts = req.file.filename
-  // await user.save();
-  res.send(req.file)
-});
-
 router.post("/upload", upload.array("post"),(req, res) => {
-res.send(req.files)
-  // const files = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
-
-  // // Create an array to store the uploaded files' IDs
-  // const uploadedIds = [];
-
-  // files.forEach((file) => {
-  //   // Create a write stream to the GridFS collection
-  //   const writeStream = gfs.createWriteStream({
-  //     filename: file.filename,
-  //   });
-
-  //   // Pipe the file to the write stream
-  //   file.pipe(writeStream);
-
-  //   // Handle write stream events
-  //   writeStream.on("close", (uploadedFile) => {
-  //     uploadedIds.push(uploadedFile._id);
-  //     if (uploadedIds.length === files.length) {
-  //       res.status(200).json({ fileIds: uploadedIds });
+  // const groupId = uuid()
+  // const files = req.files.map((file) => {
+  //   return {
+  //     ...file,
+  //     metadata: {
+  //       groupId: groupId, // add unique id to metadata
+  //       ...file.metadata
   //     }
-  //   });
-  //   writeStream.on("error", (err) => {
-  //     res.status(500).json({ error: err.message });
-  //   });
+  //   };
   // });
+
+  res.send(req.files)
 });
+
+router.get("/alls", async (req, res) => {
+  try {
+    const files = await gfs.find().toArray();
+    // Does file exist?
+    if (!files || files.length === 0) {
+      return res.status(404).send("No files found");
+    }
+
+    const groups = {};
+    files.forEach((file) => {
+      if (file.metadata && file.metadata.groupId) {
+        const groupId = file.metadata.groupId;
+        if (!groups[groupId]) {
+          groups[groupId] = {
+            url: `https://flybybackend-production.up.railway.app/api/shorti/assets/${file.filename}`,
+            metadata: file.metadata,
+          };
+        }
+      }
+    });
+
+    const urls = [];
+    for (const groupId in groups) {
+      urls.push({ groupId, file: groups[groupId] });
+    }
+
+    res.send({ urls: urls });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+
+
+
 module.exports = router;
