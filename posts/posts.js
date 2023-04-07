@@ -65,12 +65,6 @@ router.get("/alls", async (req, res) => {
             metadata: file.metadata,
           };
         }
-        if (!groups[name]) {
-          groups[name] = {
-            url: `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`,
-            metadata: file.metadata,
-          };
-        }
       }
     });
     const urls = [];
