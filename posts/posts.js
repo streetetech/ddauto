@@ -54,25 +54,43 @@ router.get("/alls", async (req, res) => {
     if (!files || files.length === 0) {
       return res.status(404).send("No files found");
     }
+    // const groups = {};
+    // files.forEach((file) => {
+    //   if (file.metadata && file.metadata.groupId) {
+    //     const groupId = file.metadata.groupId;
+    //     const name = file.filename;
+    //     if (!groups[groupId]) {
+    //       groups[groupId] = {
+    //         url: `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`,
+    //         metadata: file.metadata,
+    //       };
+    //     }
+    //   }
+    // });
+    // const urls = [];
+    // for (const groupId in groups) {
+    //   urls.push({ groupId, files: groups[groupId]
+    //    });
+    // }
+    // res.send({ urls: urls });
+    
     const groups = {};
     files.forEach((file) => {
       if (file.metadata && file.metadata.groupId) {
         const groupId = file.metadata.groupId;
         const name = file.filename;
         if (!groups[groupId]) {
-          groups[groupId] = {
-            url: `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`,
-            metadata: file.metadata,
-          };
+          groups[groupId] = `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`;
         }
       }
     });
-    const urls = [];
-    for (const groupId in groups) {
-      urls.push({ groupId, files: groups[groupId]
-       });
-    }
-    res.send({ urls: urls });
+    
+    const urls = Object.entries(groups).map(([groupId, url]) => ({
+      groupId,
+      url,
+    }));
+    
+    res.send({ urls })  
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
