@@ -80,7 +80,7 @@ router.get("/alls", async (req, res) => {
         const groupId = file.metadata.groupId;
         const name = file.filename;
         if (!groups[groupId]) {
-          groups[groupId] = `https://ddautoja-backend-production.up.railway.app/api/posts/assets/${file.filename}`;
+          groups[groupId] = `https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`;
         }
       }
     });
@@ -126,7 +126,7 @@ router.get("/all/:groupId", async (req, res) => {
       return {
         groupId: file.metadata.groupId,
         file: {
-          url: `https://ddautoja-backend-production.up.railway.app/api/posts/assets/${file.filename}`,
+          url: `https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`,
           metadata: file.metadata,
         },
       };
