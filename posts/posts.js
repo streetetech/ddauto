@@ -44,17 +44,6 @@ groupId = null;
 const upload = multer({storage});
 
 router.post("/upload", upload.array("post"),(req, res) => {
-  // const groupId = uuid()
-  // const files = req.files.map((file) => {
-  //   return {
-  //     ...file,
-  //     metadata: {
-  //       groupId: groupId, // add unique id to metadata
-  //       ...file.metadata
-  //     }
-  //   };
-  // });
-
   res.send(req.files)
 });
 
@@ -65,25 +54,30 @@ router.get("/alls", async (req, res) => {
     if (!files || files.length === 0) {
       return res.status(404).send("No files found");
     }
-
     const groups = {};
     files.forEach((file) => {
       if (file.metadata && file.metadata.groupId) {
         const groupId = file.metadata.groupId;
+        const name = file.filename;
         if (!groups[groupId]) {
           groups[groupId] = {
-            url: `https://flybybackend-production.up.railway.app/api/shorti/assets/${file.filename}`,
+            url: `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`,
+            metadata: file.metadata,
+          };
+        }
+        if (!groups[name]) {
+          groups[name] = {
+            url: `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`,
             metadata: file.metadata,
           };
         }
       }
     });
-
     const urls = [];
     for (const groupId in groups) {
-      urls.push({ groupId, file: groups[groupId] });
+      urls.push({ groupId, files: groups[groupId]
+       });
     }
-
     res.send({ urls: urls });
   } catch (error) {
     console.error(error);
@@ -91,6 +85,47 @@ router.get("/alls", async (req, res) => {
   }
 });
 
+router.get("/assets/:filename", (req, res) => {
+  const { filename } = req.params;
+  gfs.find({ filename }, (error, file) => { // Update gfs.find() to gfs.findOne()
+    if (error) return res.status(500).send(error.message);
+    // Does file exist?
+    if (!file) { // Update result to file
+      return res.status(404).send("That image was not found");
+    }
+
+    res.set("Cache-Control", "public, max-age=600");
+
+    const stream = gfs.openDownloadStreamByName(filename);
+    stream.pipe(res);
+  });
+});
+
+router.get("/all/:groupId", async (req, res) => {
+  try {
+    const groupId = req.params.groupId; // Get the groupId from the URL params
+    const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
+    // Do files exist for the groupId?
+    if (!files || files.length === 0) {
+      return res.status(404).send("No files found for the given groupId");
+    }
+
+    const urls = files.map((file) => {
+      return {
+        groupId: file.metadata.groupId,
+        file: {
+          url: `https://ddautoja-backend-production.up.railway.app/api/posts/assets/${file.filename}`,
+          metadata: file.metadata,
+        },
+      };
+    });
+
+    res.send({ urls: urls });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+});
 
 
 
