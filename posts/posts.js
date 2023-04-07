@@ -80,7 +80,7 @@ router.get("/alls", async (req, res) => {
         const groupId = file.metadata.groupId;
         const name = file.filename;
         if (!groups[groupId]) {
-          groups[groupId] = `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`;
+          groups[groupId] = `https://ddautoja-backend-production.up.railway.app/api/posts/assets/${file.filename}`;
         }
       }
     });
