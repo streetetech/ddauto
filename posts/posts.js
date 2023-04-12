@@ -54,26 +54,6 @@ router.get("/alls", async (req, res) => {
     if (!files || files.length === 0) {
       return res.status(404).send("No files found");
     }
-    // const groups = {};
-    // files.forEach((file) => {
-    //   if (file.metadata && file.metadata.groupId) {
-    //     const groupId = file.metadata.groupId;
-    //     const name = file.filename;
-    //     if (!groups[groupId]) {
-    //       groups[groupId] = {
-    //         url: `https://ddautoja-backend-production.up.railway.app/api/shorti/assets/${file.filename}`,
-    //         metadata: file.metadata,
-    //       };
-    //     }
-    //   }
-    // });
-    // const urls = [];
-    // for (const groupId in groups) {
-    //   urls.push({ groupId, files: groups[groupId]
-    //    });
-    // }
-    // res.send({ urls: urls });
-    
     const groups = {};
     files.forEach((file) => {
       if (file.metadata && file.metadata.groupId) {
@@ -139,6 +119,25 @@ router.get("/all/:groupId", async (req, res) => {
   }
 });
 
+router.delete("/all/:groupId", async (req, res) => {
+  try {
+    const groupId = req.params.groupId; // Get the groupId from the URL params
+    const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
+    // Do files exist for the groupId?
+    if (!files || files.length === 0) {
+      return res.status(404).send("No files found for the given groupId");
+    }
 
+    // Delete all files associated with the given groupId
+    for (const file of files) {
+      await gfs.delete({ _id: file._id, root: "postAssets" });
+    }
+
+    res.send("All files associated with the given groupId have been deleted");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+});
 
 module.exports = router;
