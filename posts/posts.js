@@ -37,13 +37,13 @@ const storage = new GridFsStorage({
   },
 });
 
-groupId = null;
 
 
 //Images
 const upload = multer({storage});
 
 router.post("/upload", upload.array("post"),(req, res) => {
+  groupId = null;
   res.send(req.files)
 });
 
@@ -119,21 +119,26 @@ router.get("/all/:groupId", async (req, res) => {
   }
 });
 
-router.delete("/all/:groupId", async (req, res) => {
+router.delete("/delete/:groupId", async (req, res) => {
   try {
-    const groupId = req.params.groupId; // Get the groupId from the URL params
+    const groupId = req.params.groupId; 
     const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
-    // Do files exist for the groupId?
     if (!files || files.length === 0) {
       return res.status(404).send("No files found for the given groupId");
     }
+    const deletePromises = files.map((file) => {
+        gfs.delete(file._id, (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        // });
+      });
+    });
 
-    // Delete all files associated with the given groupId
-    for (const file of files) {
-      await gfs.delete({ _id: file._id, root: "postAssets" });
-    }
 
-    res.send("All files associated with the given groupId have been deleted");
+    res.send(`All files with groupId ${groupId} have been deleted`);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
