@@ -102,17 +102,10 @@ router.get("/all/:groupId", async (req, res) => {
       return res.status(404).send("No files found for the given groupId");
     }
 
-    const urls = files.map((file) => {
-      return {
-        groupId: file.metadata.groupId,
-        file: {
-          url: `https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`,
-          metadata: file.metadata,
-        },
-      };
-    });
+  const urls = files.map((file) =>{ return {url:`https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`}});
 
-    res.send({ urls: urls });
+
+    res.send({ urls });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -136,8 +129,6 @@ router.delete("/delete/:groupId", async (req, res) => {
         // });
       });
     });
-
-
     res.send(`All files with groupId ${groupId} have been deleted`);
   } catch (error) {
     console.error(error);
