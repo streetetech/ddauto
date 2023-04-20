@@ -69,6 +69,7 @@ router.get("/alls", async (req, res) => {
         const color = file.metadata.color;
         const year = file.metadata.year;
         const bodyStyle = file.metadata.bodyStyle;
+        const specs = file.metadata.bodyStyle;
         if (!groups[groupId]) {
           groups[groupId] = {
             url: `https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`,
