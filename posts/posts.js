@@ -29,7 +29,12 @@ const storage = new GridFsStorage({
         bucketName: "uploads",
         metadata: {
           groupId,
-          brand: req.body.brand
+          brand: req.body.brand,
+          year: req.body.year,
+          color: req.body.color,
+          bodyStyle: req.body.bodyStyle,
+          model: req.body.model,
+          specs: req.body.specs,
         },
       };
     };
@@ -55,19 +60,38 @@ router.get("/alls", async (req, res) => {
       return res.status(404).send("No files found");
     }
     const groups = {};
+
     files.forEach((file) => {
       if (file.metadata && file.metadata.groupId) {
         const groupId = file.metadata.groupId;
-        const name = file.filename;
+        const brand = file.metadata.brand;
+        const model = file.metadata.model;
+        const color = file.metadata.color;
+        const year = file.metadata.year;
+        const bodyStyle = file.metadata.bodyStyle;
         if (!groups[groupId]) {
-          groups[groupId] = `https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`;
+          groups[groupId] = {
+            url: `https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`,
+            brand: brand,
+            model: model,
+            year: year,
+            color: color,
+            specs: specs,
+            bodyStyle: bodyStyle,
+          };
         }
       }
     });
     
-    const urls = Object.entries(groups).map(([groupId, url]) => ({
+    const urls = Object.entries(groups).map(([groupId, data]) => ({
       groupId,
-      url,
+      url: data.url,
+      brand: data.brand,
+      year: data.year,
+      color: data.color,
+      bodyStyle: data.bodyStyle,
+      model: data.model,
+      specs: data.specs,
     }));
     
     res.send({ urls })  
