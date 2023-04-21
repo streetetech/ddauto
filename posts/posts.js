@@ -90,7 +90,7 @@ router.get("/alls", async (req, res) => {
       brand: data.brand,
       year: data.year,
       color: data.color,
-      bodyStyle: data.bodyStyle,
+      bodyTtype: data.bodyTtype,
       model: data.model,
       specs: data.specs,
     }));
