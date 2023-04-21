@@ -127,7 +127,17 @@ router.get("/all/:groupId", async (req, res) => {
       return res.status(404).send("No files found for the given groupId");
     }
 
-  const urls = files.map((file) =>{ return {url:`https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`}});
+  const urls = files.map((file) =>{
+     return {
+      url:`https://ddautoja-backend-production.up.railway.app/api/post/assets/${file.filename}`,
+      brand:file.metadata.brand,
+      color:file.metadata.color,
+      model: file.metadata.model,
+      year: file.metadata.year,
+      bodyType: file.metadata.bodyType,
+      specs: file.metadata.specs
+    }
+  });
 
 
     res.send({ urls });
