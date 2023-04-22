@@ -42,7 +42,7 @@ app.use(methodOverride("_method"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/post", posts);
 app.use("/api/post/assets/:filename", posts);
-app.use("/api/post/assets/:filename", posts);
+app.use("/api/post/vehicles/:bodyType", posts);
 
 const port = process.env.PORT || 8000;
 app.listen(port, console.log(`listening on port ${port}`));
