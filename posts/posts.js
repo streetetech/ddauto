@@ -12,38 +12,72 @@ let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
 });
 
 
+
 let groupId = null; // Declare a variable to store the groupId
+
+// const storage = new GridFsStorage({
+//   db: mongoose.connection,
+//   file: (req, file) => {
+//     const fn = async (req) => {
+//       const { filename } = await GridFsStorage.generateBytes();
+//       const id = new mongoose.Types.ObjectId();
+//       if(!groupId){
+//         groupId = uuidv4();
+//       }
+//         return {
+//         id,
+//         filename: `${id}-${filename}${path.extname(file.originalname)}`,
+//         bucketName: "uploads",
+//         metadata: {
+//           groupId,
+//           brand: req.body.brand,
+//           year: req.body.year,
+//           color: req.body.color,
+//           bodyType: req.body.bodyType,
+//           model: req.body.model,
+//           specs: req.body.specs,
+//           seats: req.body.seats,
+//           mileage: req.body.mileage,
+//           feul: req.body.feul,
+//           transmission: req.body.transmission,
+//           steering: req.body.steering,
+//         },
+//       };
+//     };
+//     return fn(req);
+//   },
+// });
+
 
 const storage = new GridFsStorage({
   db: mongoose.connection,
   file: (req, file) => {
-    const fn = async (req) => {
+    const fn = async () => {
       const { filename } = await GridFsStorage.generateBytes();
       const id = new mongoose.Types.ObjectId();
-      if(!groupId){
-        groupId = uuidv4();
-      }
-        return {
+      const groupId = req.body.groupId || uuidv4();
+      const metadata = {
+        groupId,
+        brand: req.body.brand,
+        year: req.body.year,
+        color: req.body.color,
+        bodyType: req.body.bodyType,
+        model: req.body.model,
+        specs: req.body.specs,
+        seats: req.body.seats,
+        mileage: req.body.mileage,
+        feul: req.body.feul,
+        transmission: req.body.transmission,
+        steering: req.body.steering,
+      };
+      return {
         id,
         filename: `${id}-${filename}${path.extname(file.originalname)}`,
         bucketName: "uploads",
-        metadata: {
-          groupId,
-          brand: req.body.brand,
-          year: req.body.year,
-          color: req.body.color,
-          bodyType: req.body.bodyType,
-          model: req.body.model,
-          specs: req.body.specs,
-          seats: req.body.seats,
-          mileage: req.body.mileage,
-          feul: req.body.feul,
-          transmission: req.body.transmission,
-          steering: req.body.steering,
-        },
+        metadata,
       };
     };
-    return fn(req);
+    return fn();
   },
 });
 
@@ -148,9 +182,11 @@ router.get("/all/:groupId", async (req, res) => {
     }
 
   const urls = files.map((file) =>{
+console.log(file.metadata)
+
      return {
       url:`https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
-      brand:file.metadata.brand,
+      brand: file.metadata.brand,
       color:file.metadata.color,
       model: file.metadata.model,
       year: file.metadata.year,
@@ -163,7 +199,6 @@ router.get("/all/:groupId", async (req, res) => {
       steering : file.metadata.steering
     }
   });
-
 
     res.send({ urls });
   } catch (error) {
@@ -340,6 +375,39 @@ router.get("/featured", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+router.get("/alls/:groupId", async (req, res) => {
+  try {
+    const groupId = req.params.groupId; // Get the groupId from the URL params
+    const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
+    // Do files exist for the groupId?
+    if (!files || files.length === 0) {
+      return res.status(404).send("No files found for the given groupId");
+    }
+
+    const urls = files.map((file) => {
+      return{
+      url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
+      brand: file.metadata.brand,
+      color: file.metadata.color,
+      model: file.metadata.model,
+      year: file.metadata.year,
+      bodyType: file.metadata.bodyType,
+      specs: file.metadata.specs,
+      mileage: file.metadata.mileage,
+      seats: file.metadata.seats,
+      fuel: file.metadata.fuel,
+      transmission: file.metadata.transmission,
+      steering: file.metadata.steering,
+  }})
+
+    res.send({ urls });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+});
+
 
 
 module.exports = router;
