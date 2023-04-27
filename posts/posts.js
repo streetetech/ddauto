@@ -55,7 +55,9 @@ const storage = new GridFsStorage({
     const fn = async () => {
       const { filename } = await GridFsStorage.generateBytes();
       const id = new mongoose.Types.ObjectId();
-      const groupId = req.body.groupId || uuidv4();
+      if(!groupId){
+        groupId = uuidv4();
+      }
       const metadata = {
         groupId,
         brand: req.body.brand,
