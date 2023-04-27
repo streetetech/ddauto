@@ -58,25 +58,24 @@ const storage = new GridFsStorage({
       if(!groupId){
         groupId = uuidv4();
       }
-      const metadata = {
-        groupId,
-        brand: req.body.brand,
-        year: req.body.year,
-        color: req.body.color,
-        bodyType: req.body.bodyType,
-        model: req.body.model,
-        specs: req.body.specs,
-        seats: req.body.seats,
-        mileage: req.body.mileage,
-        feul: req.body.feul,
-        transmission: req.body.transmission,
-        steering: req.body.steering,
-      };
       return {
         id,
         filename: `${id}-${filename}${path.extname(file.originalname)}`,
         bucketName: "uploads",
-        metadata,
+        metadata:{
+          groupId,
+          brand: req.body.brand,
+          year: req.body.year,
+          color: req.body.color,
+          bodyType: req.body.bodyType,
+          model: req.body.model,
+          specs: req.body.specs,
+          seats: req.body.seats,
+          mileage: req.body.mileage,
+          feul: req.body.feul,
+          transmission: req.body.transmission,
+          steering: req.body.steering,
+        }
       };
     };
     return fn();
