@@ -86,7 +86,7 @@ const storage = new GridFsStorage({
 //Images
 const upload = multer({storage});
 
-router.post("/upload", upload.array("post"), async(req, res) => {
+router.post("/upload", upload.single("post"), async(req, res) => {
     const { brand, year, model, color, bodyType, specs, mileage, seats, feul, steering, transmission } = req.body;
   
     try {
