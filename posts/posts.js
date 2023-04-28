@@ -5,15 +5,14 @@ const { GridFsStorage } = require("multer-gridfs-storage");
 const { default: mongoose } = require("mongoose");
 require("dotenv").config();
 const { v4: uuidv4 } = require('uuid'); 
+const Images = require('../model/images.model');
 
 let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
   bucketName: "uploads",
   chunkSizeBytes: 1024,
 });
 
-
-
-let groupId = null; // Declare a variable to store the groupId
+let groupId = null; 
 
 // const storage = new GridFsStorage({
 //   db: mongoose.connection,
@@ -52,17 +51,18 @@ let groupId = null; // Declare a variable to store the groupId
 const storage = new GridFsStorage({
   db: mongoose.connection,
   file: (req, file) => {
-    const fn = async () => {
+    const fn = async (req) => {
       const { filename } = await GridFsStorage.generateBytes();
       const id = new mongoose.Types.ObjectId();
-      if(!groupId){
+      let groupId = req.body.groupId;
+      if (!groupId) {
         groupId = uuidv4();
       }
       return {
         id,
         filename: `${id}-${filename}${path.extname(file.originalname)}`,
         bucketName: "uploads",
-        metadata:{
+        metadata: {
           groupId,
           brand: req.body.brand,
           year: req.body.year,
@@ -75,22 +75,30 @@ const storage = new GridFsStorage({
           feul: req.body.feul,
           transmission: req.body.transmission,
           steering: req.body.steering,
-        }
+        },
       };
     };
-    return fn();
+    return fn(req);
   },
 });
-
 
 
 //Images
 const upload = multer({storage});
 
-router.post("/upload", upload.array("post"),(req, res) => {
-  groupId = null;
-  res.send(req.files)
+router.post("/upload", upload.array("post"), async(req, res) => {
+    const { brand, year, model, color, bodyType, specs, mileage, seats, feul, steering, transmission } = req.body;
+  
+    try {
+      const image = new Image({ brand, year, model, color, bodyType, specs, mileage, seats, feul, steering, transmission });
+      const savedImage = await image.save();
+      res.json(savedImage);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Server error');
+    }
 });
+
 
 router.get("/alls", async (req, res) => {
   try {
