@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 
 // Define the image schema
 const imageSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
   brand: {
     type: String
   },
