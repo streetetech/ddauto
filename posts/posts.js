@@ -14,67 +14,45 @@ let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
 
 let groupId = null; 
 
-// const storage = new GridFsStorage({
-//   db: mongoose.connection,
-//   file: (req, file) => {
-//     const fn = async (req) => {
-//       const { filename } = await GridFsStorage.generateBytes();
-//       const id = new mongoose.Types.ObjectId();
-//       if(!groupId){
-//         groupId = uuidv4();
-//       }
-//         return {
-//         id,
-//         filename: `${id}-${filename}${path.extname(file.originalname)}`,
-//         bucketName: "uploads",
-//         metadata: {
-//           groupId,
-//           brand: req.body.brand,
-//           year: req.body.year,
-//           color: req.body.color,
-//           bodyType: req.body.bodyType,
-//           model: req.body.model,
-//           specs: req.body.specs,
-//           seats: req.body.seats,
-//           mileage: req.body.mileage,
-//           feul: req.body.feul,
-//           transmission: req.body.transmission,
-//           steering: req.body.steering,
-//         },
-//       };
-//     };
-//     return fn(req);
-//   },
-// });
-
-
 const storage = new GridFsStorage({
   db: mongoose.connection,
   file: (req, file) => {
     const fn = async (req) => {
       const { filename } = await GridFsStorage.generateBytes();
+      const brand= req.body.brand
+      const year= req.body.year
+      const color= req.body.color
+      const bodyType= req.body.bodyType
+      const model= req.body.model
+      const specs= req.body.specs
+      const seats= req.body.seats
+      const mileage= req.body.mileage
+      const feul= req.body.feul
+      const transmission= req.body.transmission
+      const steering= req.body.steering
+      const price= req.body.price
       const id = new mongoose.Types.ObjectId();
-      let groupId = req.body.groupId;
-      if (!groupId) {
+      if(!groupId){
         groupId = uuidv4();
       }
-      return {
+        return {
         id,
         filename: `${id}-${filename}${path.extname(file.originalname)}`,
         bucketName: "uploads",
         metadata: {
           groupId,
-          brand: req.body.brand,
-          year: req.body.year,
-          color: req.body.color,
-          bodyType: req.body.bodyType,
-          model: req.body.model,
-          specs: req.body.specs,
-          seats: req.body.seats,
-          mileage: req.body.mileage,
-          feul: req.body.feul,
-          transmission: req.body.transmission,
-          steering: req.body.steering,
+          brand,
+          year,     
+          color,
+          bodyType,
+          model,
+          specs,
+          seats,
+          mileage,
+          feul ,  
+         transmission,
+        steering,
+          price
         },
       };
     };
@@ -82,21 +60,12 @@ const storage = new GridFsStorage({
   },
 });
 
-
 //Images
 const upload = multer({storage});
 
-router.post("/upload", upload.single("post"), async(req, res) => {
-    const { brand, year, model, color, bodyType, specs, mileage, seats, feul, steering, transmission } = req.body;
-  
-    try {
-      const image = new Image({ brand, year, model, color, bodyType, specs, mileage, seats, feul, steering, transmission });
-      const savedImage = await image.save();
-      res.json(savedImage);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Server error');
-    }
+router.post("/upload", upload.array("post"), async(req, res) => {
+  groupId = null    
+    res.send(req.files)
 });
 
 
@@ -123,6 +92,7 @@ router.get("/alls", async (req, res) => {
         const feul = file.metadata.feul
         const transmission = file.metadata.transmission
         const steering = file.metadata.steering
+        const price = file.metadata.price
         if (!groups[groupId]) {
           groups[groupId] = {
             url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
@@ -136,7 +106,8 @@ router.get("/alls", async (req, res) => {
             feul:feul,
             steering: steering,
             transmission: transmission,
-            seats:seats
+            seats:seats,
+            price:price
           };
         }
       }
@@ -156,6 +127,7 @@ router.get("/alls", async (req, res) => {
       seats: data.seats,
       transmission: data.transmission,
       steering: data.steering,
+      price: data.price,
     }));
     
     res.send({ urls })  
@@ -205,7 +177,8 @@ console.log(file.metadata)
       seats : file.metadata.seats,
       feul : file.metadata.feul,
       transmission : file.metadata.transmission,
-      steering : file.metadata.steering
+      steering : file.metadata.steering,
+      price : file.metadata.price,
     }
   });
 
@@ -269,6 +242,7 @@ router.get("/vehicles/:bodyType", async (req, res) => {
         const feul = file.metadata.feul
         const transmission = file.metadata.transmission
         const steering = file.metadata.steering
+        const price = file.metadata.price
         if (!groups[groupId]) {
           groups[groupId] = {
             url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
@@ -282,7 +256,8 @@ router.get("/vehicles/:bodyType", async (req, res) => {
             feul:feul,
             steering: steering,
             transmission: transmission,
-            seats:seats
+            seats:seats,
+            price:price
           };
         }
       }
@@ -302,6 +277,7 @@ router.get("/vehicles/:bodyType", async (req, res) => {
       seats: data.seats,
       transmission: data.transmission,
       steering: data.steering,
+      price: data.price,
     }));
     
     res.send({ urls })  
@@ -335,6 +311,7 @@ router.get("/featured", async (req, res) => {
         const feul = file.metadata.feul
         const transmission = file.metadata.transmission
         const steering = file.metadata.steering
+        const price = file.metadata.price
 
         // Check if bodyType is in the list of allowed types
         const allowedBodyTypes = ["Sedan", "Suv", "Truck", "Mini-Van", "Hatchback",];
@@ -353,7 +330,8 @@ router.get("/featured", async (req, res) => {
               feul: feul,
               steering: steering,
               transmission: transmission,
-              seats: seats
+              seats: seats,
+              price: price,
             };
           }
         }
@@ -376,6 +354,7 @@ router.get("/featured", async (req, res) => {
         seats: data.seats,
         transmission: data.transmission,
         steering: data.steering,
+        price: data.price,
       }));
 
     res.send({ urls })
@@ -408,6 +387,7 @@ router.get("/alls/:groupId", async (req, res) => {
       fuel: file.metadata.fuel,
       transmission: file.metadata.transmission,
       steering: file.metadata.steering,
+      price: file.metadata.price,
   }})
 
     res.send({ urls });
