@@ -5,7 +5,7 @@ const { GridFsStorage } = require("multer-gridfs-storage");
 const { default: mongoose } = require("mongoose");
 require("dotenv").config();
 const { v4: uuidv4 } = require('uuid'); 
-const Images = require('../model/images.model');
+const Image = require('../model/images.model');
 
 let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
   bucketName: "uploads",
