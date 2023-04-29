@@ -338,7 +338,7 @@ router.get("/featured", async (req, res) => {
     });
 
     const urls = Object.entries(groups)
-      .slice(0, 15) // Get only the first 15 entries
+      .slice(0, 10) // Get only the first 15 entries
       .map(([groupId, data]) => ({
         groupId,
         url: data.url,
