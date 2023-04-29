@@ -24,8 +24,7 @@ const DB = async () => {
 DB()
 app.use(cors(
   {
-  //fix preflight error
-    orgin:'https://ddauto.up.railway.app',
+   orgin:'https://ddauto.up.railway.app',
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
 'Access-Control-Allow-Origin' : 'localhost:3000'
