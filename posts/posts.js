@@ -84,7 +84,6 @@ router.get("/assets/:filename", (req, res) => {
   });
 });
 
-
 router.get("/search/:brand", async (req, res) => {
   try {
     const brand = req.params.brand; // Get the brand from the URL params
@@ -92,8 +91,9 @@ router.get("/search/:brand", async (req, res) => {
     if (!files || files.length === 0) {
       return res.status(404).send("No files found");
     }
-
+    
     const groups = {};
+    const models = {};
 
     files.forEach((file) => {
       if (file.metadata && file.metadata.groupId) {
@@ -103,9 +103,10 @@ router.get("/search/:brand", async (req, res) => {
           return; // skip this file
         }
         const groupId = file.metadata.groupId;
-        const brand = file.metadata.brand;
-        if (!groups[groupId] || groups[groupId].brand === brand) {
-          const model = file.metadata.model;
+        const model = file.metadata.model;
+
+        if (!groups[groupId]) {
+          const brand = file.metadata.brand;
           const color = file.metadata.color;
           const year = file.metadata.year;
           const bodyType = file.metadata.bodyType;
@@ -116,7 +117,6 @@ router.get("/search/:brand", async (req, res) => {
           const transmission = file.metadata.transmission
           const steering = file.metadata.steering
           const price = file.metadata.price
-
           groups[groupId] = {
             url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
             brand: brand,
@@ -133,10 +133,18 @@ router.get("/search/:brand", async (req, res) => {
             price:price
           };
         }
+
+        if (!models[model]) {
+          models[model] = {
+            groupId: groupId,
+            model: model,
+            url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`
+          };
+        }
       }
     });
-
-    const urls = Object.entries(groups).map(([groupId, data]) => ({
+    
+    const groupUrls = Object.entries(groups).map(([groupId, data]) => ({
       groupId,
       url: data.url,
       brand: data.brand,
@@ -153,13 +161,18 @@ router.get("/search/:brand", async (req, res) => {
       price: data.price,
     }));
 
-    res.send({ urls })
+    const modelUrls = Object.entries(models).map(([model, data]) => ({
+      groupId: data.groupId,
+      url: data.url,
+      model: data.model,
+    }));
+    
+    res.send({ groupUrls })  
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
   }
-});
-
+})
 
 
 router.delete("/delete/:groupId", async (req, res) => {
