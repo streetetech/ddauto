@@ -5,7 +5,6 @@ const { GridFsStorage } = require("multer-gridfs-storage");
 const { default: mongoose } = require("mongoose");
 require("dotenv").config();
 const { v4: uuidv4 } = require('uuid'); 
-const Image = require('../model/images.model');
 
 let gfs = new mongoose.mongo.GridFSBucket(mongoose.connection, {
   bucketName: "uploads",
@@ -69,74 +68,6 @@ router.post("/upload", upload.array("post"), async(req, res) => {
     res.send(req.files)
 });
 
-router.get("/alls", async (req, res) => {
-  try {
-    const files = await gfs.find().toArray();
-    // Does file exist?
-    if (!files || files.length === 0) {
-      return res.status(404).send("No files found");
-    }
-    const groups = {};
-
-    files.forEach((file) => {
-      if (file.metadata && file.metadata.groupId) {
-        const groupId = file.metadata.groupId;
-        const brand = file.metadata.brand;
-        const model = file.metadata.model;
-        const color = file.metadata.color;
-        const year = file.metadata.year;
-        const bodyType = file.metadata.bodyType;
-        const specs = file.metadata.specs;
-        const mileage = file.metadata.mileage
-        const seats = file.metadata.seats
-        const feul = file.metadata.feul
-        const transmission = file.metadata.transmission
-        const steering = file.metadata.steering
-        const price = file.metadata.price
-        if (!groups[groupId]) {
-          groups[groupId] = {
-            url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
-            brand: brand,
-            model: model,
-            year: year,
-            color: color,
-            specs: specs,
-            bodyType: bodyType,
-            mileage: mileage,
-            feul:feul,
-            steering: steering,
-            transmission: transmission,
-            seats:seats,
-            price:price
-          };
-        }
-      }
-    });
-    
-    const urls = Object.entries(groups).map(([groupId, data]) => ({
-      groupId,
-      url: data.url,
-      brand: data.brand,
-      year: data.year,
-      color: data.color,
-      bodyType: data.bodyType,
-      model: data.model,
-      specs: data.specs,
-      mileage: data.mileage,
-      feul: data.feul,
-      seats: data.seats,
-      transmission: data.transmission,
-      steering: data.steering,
-      price: data.price,
-    }));
-    
-    res.send({ urls })  
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
-});
-
 router.get("/assets/:filename", (req, res) => {
   const { filename } = req.params;
   gfs.find({ filename }, (error, file) => { // Update gfs.find() to gfs.findOne()
@@ -153,13 +84,13 @@ router.get("/assets/:filename", (req, res) => {
   });
 });
 
-router.get("/all/:groupId", async (req, res) => {
+router.get("/search/:brand", async (req, res) => {
   try {
-    const groupId = req.params.groupId; // Get the groupId from the URL params
-    const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
-    // Do files exist for the groupId?
+    const brand = req.params.brand; // Get the brand from the URL params
+    const files = await gfs.find({ "metadata.brand": brand }).toArray();
+    // Do files exist for the brand?
     if (!files || files.length === 0) {
-      return res.status(404).send("No files found for the given groupId");
+      return res.status(404).send("No files found for the given brand");
     }
 
   const urls = files.map((file) =>{
@@ -348,117 +279,6 @@ router.get("/featured", async (req, res) => {
   }
 });
 
-router.get("/all/:groupId", async (req, res) => {
-  try {
-    const groupId = req.params.groupId; // Get the groupId from the URL params
-    const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
-    // Do files exist for the groupId?
-    if (!files || files.length === 0) {
-      return res.status(404).send("No files found for the given groupId");
-    }
-
-    const urls = files.map((file) => {
-      return{
-      url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
-      brand: file.metadata.brand,
-      color: file.metadata.color,
-      model: file.metadata.model,
-      year: file.metadata.year,
-      bodyType: file.metadata.bodyType,
-      specs: file.metadata.specs,
-      mileage: file.metadata.mileage,
-      seats: file.metadata.seats,
-      fuel: file.metadata.fuel,
-      transmission: file.metadata.transmission,
-      steering: file.metadata.steering,
-      price: file.metadata.price,
-  }})
-
-    res.send({ urls });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
-});
-
-
-router.get("/testss", async (req, res) => {
-  try {
-    const files = await gfs.find().toArray();
-    // Does file exist?
-    if (!files || files.length === 0) {
-      return res.status(404).send("No files found");
-    }
-    const groups = {};
-
-    files.forEach((file) => {
-      if (file.metadata && file.metadata.groupId) {
-        const groupId = file.metadata.groupId;
-        const brand = file.metadata.brand;
-        const model = file.metadata.model;
-        const color = file.metadata.color;
-        const year = file.metadata.year;
-        const bodyType = file.metadata.bodyType;
-        const specs = file.metadata.specs;
-        const mileage = file.metadata.mileage
-        const seats = file.metadata.seats
-        const feul = file.metadata.feul
-        const transmission = file.metadata.transmission
-        const steering = file.metadata.steering
-        const price = file.metadata.price
-        if (!groups[groupId]) {
-          groups[groupId] = [];
-        }
-        groups[groupId].push({
-          url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
-          brand: brand,
-          model: model,
-          year: year,
-          color: color,
-          specs: specs,
-          bodyType: bodyType,
-          mileage: mileage,
-          feul:feul,
-          steering: steering,
-          transmission: transmission,
-          seats:seats,
-          price:price
-        });
-      }
-    });
-    
-    const urls = [];
-    
-    for (const groupId in groups) {
-      const images = groups[groupId];
-      if (images.length >= 2) {
-        urls.push({
-          groupId: groupId,
-          url: images[1].url,
-          brand: images[1].brand,
-          model: images[1].model,
-          year: images[1].year,
-          color: images[1].color,
-          specs: images[1].specs,
-          bodyType: images[1].bodyType,
-          mileage: images[1].mileage,
-          feul: images[1].feul,
-          steering: images[1].steering,
-          transmission: images[1].transmission,
-          seats: images[1].seats,
-          price: images[1].price,
-        });
-      }
-    }
-    
-    res.send({ urls })  
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
-})
-
-
 router.get("/test", async (req, res) => {
   try {
     const files = await gfs.find().toArray();
@@ -533,5 +353,4 @@ router.get("/test", async (req, res) => {
 })
 
 
-
-module.exports = router;
+  module.exports = router;
