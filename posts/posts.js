@@ -19,18 +19,19 @@ const storage = new GridFsStorage({
   file: (req, file) => {
     const fn = async (req) => {
       const { filename } = await GridFsStorage.generateBytes();
-      const brand= req.body.brand
-      const year= req.body.year
-      const color= req.body.color
-      const bodyType= req.body.bodyType
-      const model= req.body.model
-      const specs= req.body.specs
-      const seats= req.body.seats
-      const mileage= req.body.mileage
-      const feul= req.body.feul
-      const transmission= req.body.transmission
-      const steering= req.body.steering
-      const price= req.body.price
+      const brand= req.body.brand.toLowerCase();
+      const year= req.body.year.toLowerCase();
+      const color= req.body.color.toLowerCase();
+      const bodyType= req.body.bodyType.toLowerCase();
+      const model= req.body.model.toLowerCase();
+      const specs= req.body.specs.toLowerCase();
+      const seats= req.body.seats.toLowerCase();
+      const mileage= req.body.mileage.toLowerCase();
+      const feul= req.body.feul.toLowerCase();
+      const transmission= req.body.transmission.toLowerCase();
+      const steering= req.body.steering.toLowerCase();
+      const price= req.body.price.toLowerCase();
+
       const id = new mongoose.Types.ObjectId();
       if(!groupId){
         groupId = uuidv4();
@@ -201,7 +202,7 @@ router.delete("/delete/:groupId", async (req, res) => {
             reject(err);
           } else {
             resolve();
-          }
+          } 
       });
     });
     res.send(`All files with groupId ${groupId} have been deleted`);
@@ -214,11 +215,11 @@ router.delete("/delete/:groupId", async (req, res) => {
 router.get("/vehicles/:bodyType", async (req, res) => {
   try {
     const files = await gfs.find().toArray();
-    const bodyType = req.params.bodyType;
+    const bodyType = req.params.bodyType.toLowerCase(); // convert to lowercase
     
     // Filter files by bodyType
     const filteredFiles = files.filter((file) => {
-      return file.metadata && file.metadata.bodyType && file.metadata.bodyType === bodyType;
+      return file.metadata && file.metadata.bodyType && file.metadata.bodyType.toLowerCase() === bodyType; // convert to lowercase
     });
     
     // Does file exist?
@@ -262,29 +263,13 @@ router.get("/vehicles/:bodyType", async (req, res) => {
       }
     });
     
-    const urls = Object.entries(groups).map(([groupId, data]) => ({
-      groupId,
-      url: data.url,
-      brand: data.brand,
-      year: data.year,
-      color: data.color,
-      bodyType: data.bodyType,
-      model: data.model,
-      specs: data.specs,
-      mileage: data.mileage,
-      feul: data.feul,
-      seats: data.seats,
-      transmission: data.transmission,
-      steering: data.steering,
-      price: data.price,
-    }));
-    
-    res.send({ urls })  
-  } catch (error) {
-    console.error(error);
+    res.send(Object.values(groups));
+  } catch (err) {
+    console.error(err);
     res.status(500).send("Internal server error");
   }
 });
+
 
 router.get("/featured", async (req, res) => {
   try {
