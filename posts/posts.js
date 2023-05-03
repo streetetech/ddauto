@@ -18,20 +18,19 @@ const storage = new GridFsStorage({
   file: (req, file) => {
     const fn = async (req) => {
       const { filename } = await GridFsStorage.generateBytes();
-      const brand= req.body.brand.toLowerCase();
-      const year= req.body.year.toLowerCase();
-      const color= req.body.color.toLowerCase();
-      const bodyType= req.body.bodyType.toLowerCase();
-      const model= req.body.model.toLowerCase();
-      const specs= req.body.specs.toLowerCase();
-      const seats= req.body.seats.toLowerCase();
-      const mileage= req.body.mileage.toLowerCase();
-      const feul= req.body.feul.toLowerCase();
-      const trim= req.body.feul.toLowerCase();
-      const transmission= req.body.transmission.toLowerCase();
-      const steering= req.body.steering.toLowerCase();
-      const price= req.body.price.toLowerCase();
-
+      const brand= req.body.brand;
+      const year= req.body.year;
+      const color= req.body.color;
+      const bodyType= req.body.bodyType;
+      const model= req.body.model;
+      const specs= req.body.specs;
+      const seats= req.body.seats;
+      const mileage= req.body.mileage;
+      const feul= req.body.feul;
+      const trim= req.body.feul;
+      const transmission= req.body.transmission;
+      const steering= req.body.steering;
+      const price= req.body.price;
       const id = new mongoose.Types.ObjectId();
       if(!groupId){
         groupId = uuidv4();
@@ -85,100 +84,6 @@ router.get("/assets/:filename", (req, res) => {
     stream.pipe(res);
   });
 });
-
-// router.get("/search/:brand", async (req, res) => {
-//   try {
-//     const brand = req.params.brand; // Get the brand from the URL params
-//     const files = await gfs.find({ "metadata.brand": brand }).toArray();    // Does file exist?
-//     if (!files || files.length === 0) {
-//       return res.status(404).send("No files found");
-//     }
-    
-//     const groups = {};
-//     const models = {};
-
-//     files.forEach((file) => {
-//       if (file.metadata && file.metadata.groupId) {
-//         // check if any metadata field is null
-//         const metadataValues = Object.values(file.metadata);
-//         if (metadataValues.some((value) => value === null)) {
-//           return; // skip this file
-//         }
-//         const groupId = file.metadata.groupId;
-//         const model = file.metadata.model;
-
-//         if (!groups[groupId]) {
-//           const brand = file.metadata.brand;
-//           const color = file.metadata.color;
-//           const year = file.metadata.year;
-//           const bodyType = file.metadata.bodyType;
-//           const specs = file.metadata.specs;
-//           const mileage = file.metadata.mileage
-//           const seats = file.metadata.seats
-//           const feul = file.metadata.feul
-//           const transmission = file.metadata.transmission
-//           const steering = file.metadata.steering
-//           const price = file.metadata.price
-//           const trim = file.metadata.trim
-//           groups[groupId] = {
-//             url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
-//             brand: brand,
-//             model: model,
-//             year: year,
-//             color: color,
-//             specs: specs,
-//             bodyType: bodyType,
-//             mileage: mileage,
-//             feul:feul,
-//             steering: steering,
-//             transmission: transmission,
-//             seats:seats,
-//             price:price,
-//             trim:trim,
-//           };
-//         }
-
-//         if (!models[model]) {
-//           models[model] = {
-//             groupId: groupId,
-//             model: model,
-//             url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`
-//           };
-//         }
-//       }
-//     });
-    
-//     const groupUrls = Object.entries(groups).map(([groupId, data]) => ({
-//       groupId,
-//       url: data.url,
-//       brand: data.brand,
-//       year: data.year,
-//       color: data.color,
-//       bodyType: data.bodyType,
-//       model: data.model,
-//       specs: data.specs,
-//       mileage: data.mileage,
-//       feul: data.feul,
-//       seats: data.seats,
-//       transmission: data.transmission,
-//       steering: data.steering,
-//       price: data.price,
-//       trim: data.trim,
-//     }));
-
-//     const modelUrls = Object.entries(models).map(([model, data]) => ({
-//       groupId: data.groupId,
-//       url: data.url,
-//       model: data.model,
-//     }));
-    
-//     res.send({ groupUrls })  
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Internal server error");
-//   }
-// })
-
 
 router.delete("/delete/:groupId", async (req, res) => {
   try {
