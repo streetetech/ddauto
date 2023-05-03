@@ -206,11 +206,11 @@ router.delete("/delete/:groupId", async (req, res) => {
 router.get("/vehicles/:bodyType", async (req, res) => {
   try {
     const files = await gfs.find().toArray();
-    const bodyType = req.params.bodyType.toLowerCase(); // convert to lowercase
+    const bodyType = req.params.bodyType // convert to lowercase
     
     // Filter files by bodyType
     const filteredFiles = files.filter((file) => {
-      return file.metadata && file.metadata.bodyType && file.metadata.bodyType.toLowerCase() === bodyType; // convert to lowercase
+      return file.metadata && file.metadata.bodyType && file.metadata.bodyType === bodyType; // convert to lowercase
     });
     
     // Does file exist?
@@ -342,7 +342,7 @@ router.get("/featured", async (req, res) => {
     console.error(error);
     res.status(500).send("Internal server error");
   }
-});
+})
 
 router.get("/test", async (req, res) => {
   try {
