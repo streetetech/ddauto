@@ -249,6 +249,42 @@ router.get("/featured", async (req, res) => {
   }
 })
 
+router.get("/all/:groupId", async (req, res) => {
+  try {
+    const groupId = req.params.groupId; // Get the groupId from the URL params
+    const files = await gfs.find({ "metadata.groupId": groupId }).toArray();
+    // Do files exist for the groupId?
+    if (!files || files.length === 0) {
+      return res.status(404).send("No files found for the given groupId");
+    }
+
+  const urls = files.map((file) =>{
+console.log(file.metadata)
+
+     return {
+      url:`https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
+      brand: file.metadata.brand,
+      color:file.metadata.color,
+      model: file.metadata.model,
+      year: file.metadata.year,
+      bodyType: file.metadata.bodyType,
+      specs: file.metadata.specs,
+      mileage : file.metadata.mileage,
+      seats : file.metadata.seats,
+      feul : file.metadata.feul,
+      transmission : file.metadata.transmission,
+      steering : file.metadata.steering,
+      price : file.metadata.price,
+    }
+  });
+
+    res.send({ urls });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+});
+
 router.get("/test", async (req, res) => {
   try {
     const files = await gfs.find().toArray();
