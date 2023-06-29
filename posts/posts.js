@@ -136,6 +136,7 @@ router.get("/vehicles/:bodyType", async (req, res) => {
         const trim = file.metadata.trim
         if (!groups[groupId]) {
           groups[groupId] = {
+            groupId,
             url: `https://ddauto.up.railway.app/api/post/assets/${file.filename}`,
             brand: brand,
             model: model,
