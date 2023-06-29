@@ -279,7 +279,7 @@ router.get("/all/:groupId", async (req, res) => {
   }
 });
 
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 20;
 
 router.get("/test", async (req, res) => {
   try {
@@ -469,7 +469,7 @@ router.get("/searchretbrand/:brand", async (req, res) => {
       }
     });
 
-    const ITEMS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 20;
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
     const endIndex = page * ITEMS_PER_PAGE;
     const paginatedUrls = Object.values(groups)
