@@ -27,7 +27,7 @@ const storage = new GridFsStorage({
       const seats= req.body.seats;
       const mileage= req.body.mileage;
       const feul= req.body.feul;
-      const trim= req.body.feul;
+      const trim= req.body.trim;
       const transmission= req.body.transmission;
       const steering= req.body.steering;
       const price= req.body.price;
@@ -469,7 +469,7 @@ router.get("/searchretbrand/:brand", async (req, res) => {
       }
     });
 
-    const ITEMS_PER_PAGE = 20;
+    const ITEMS_PER_PAGE = 10;
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
     const endIndex = page * ITEMS_PER_PAGE;
     const paginatedUrls = Object.values(groups)
