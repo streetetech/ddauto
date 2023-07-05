@@ -32,34 +32,43 @@ const storage = new GridFsStorage({
       const steering= req.body.steering;
       const price= req.body.price;
       const id = new mongoose.Types.ObjectId();
-      if(!groupId){
+      
+      if (!groupId) {
         groupId = uuidv4();
-      }
         return {
-        id,
-        filename: `${id}-${filename}${path.extname(file.originalname)}`,
-        bucketName: "uploads",
-        metadata: {
-          groupId,
-          brand,
-          year,     
-          color,
-          bodyType,
-          model,
-          specs,
-          seats,
-          mileage,
-          feul ,  
-          transmission,
-          steering,
-          price,
-          trim
-        },
-      };
+          id,
+          filename: `${id}-${filename}${path.extname(file.originalname)}`,
+          bucketName: "uploads",
+          metadata: {
+            groupId,
+            brand,
+            year,
+            color,
+            bodyType,
+            model,
+            specs,
+            seats,
+            mileage,
+            feul,
+            transmission,
+            steering,
+            price,
+            trim
+          },
+        };
+      } else {
+        return {
+          id,
+          filename: `${id}-${filename}${path.extname(file.originalname)}`,
+          bucketName: "uploads",
+          metadata: {}
+        };
+      }
     };
     return fn(req);
   },
 });
+
 
 //Images
 const upload = multer({storage});
